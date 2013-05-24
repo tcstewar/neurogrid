@@ -34,7 +34,25 @@ def swapped(N, D, rng, rows, cols, iterations=100):
     
     return encoders            
             
-            
+
+def kohonen(N, D, rng, rows, cols, iterations=100, learning_rate=1.0):
+    assert rows * cols == N
+    
+    import mvpa2.suite
+    
+    learning_rate = learning_rate/N
+    
+    som = mvpa2.suite.SimpleSOMMapper((rows, cols), iterations, learning_rate=learning_rate)
+    encoders = random(N, D, rng)
+    
+    
+    som.train(encoders)
+    
+    encoders = som.K
+    encoders.shape = N,D
+    
+    return encoders
+    
     
     
     

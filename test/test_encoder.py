@@ -1,8 +1,9 @@
 import numpy as np
 import scipy.signal
-import encoders
 import unittest
 
+import encoders
+import plot
 
 class TestEncoders(unittest.TestCase):
     def setUp(self):
@@ -38,6 +39,21 @@ class TestEncoders(unittest.TestCase):
             #print 'diff_random',diff
             
             self.assertGreater(diff, 0.2/D)
+       
+    def _test_plot(self):    
+        D = 3
+        #e = encoders.kohonen(400, D, self.rng, rows=20, cols=20)
+        #plot.encoder_flat(e, 20, 20)
+
+
+        e = encoders.swapped(400, D, self.rng, rows=20, cols=20, iterations=400)
+        plot.encoder_flat(e, 20, 20)
+        plot.encoder_3d(e)
+
+        #e = encoders.random(100, D, self.rng)
+        #plot.encoder_flat(e, 10, 10)
+        plot.show()
+        
         
         
             
