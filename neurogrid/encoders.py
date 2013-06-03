@@ -16,12 +16,14 @@ def score(encoders, index, rows, cols):
     if j<rows-1: sim += np.dot(encoders[j*cols+i], encoders[(j+1)*cols+i])
     return sim
 
-def swapped(N, D, rng, rows, cols, iterations=100):
+def swapped(N, D, rng, rows, cols, iterations=100, encoders=None):
     assert rows*cols == N
     
-    encoders = random(N, D, rng)
+    if encoders is None:
+        encoders = random(N, D, rng)
     
     for k in range(iterations):
+        print k
         target = rng.randint(0, N, N)
         for i in range(N):
             j = target[i]

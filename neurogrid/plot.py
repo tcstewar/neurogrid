@@ -21,3 +21,7 @@ def encoder_3d(e):
     ax.scatter(e[:,0], e[:,1], e[:,2])
         
 
+def encoder_2d(e):
+    plt.figure()
+    plt.scatter(e[:,0], e[:,1])
+
