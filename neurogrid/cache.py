@@ -1,6 +1,11 @@
 import shelve
 
 db = shelve.open('/tmp/neurogrid')
+
+def flush():
+    global db
+    db.close()
+    db = shelve.open('/tmp/neurogrid')
     
             
 def make_key(**keys):    

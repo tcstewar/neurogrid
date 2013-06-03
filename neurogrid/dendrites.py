@@ -19,3 +19,17 @@ def blur_kernel(rows, cols, width):
         kernel /= np.sum(kernel)
     return kernel    
     
+    
+import scipy.signal    
+def apply(matrix, kernel):
+    N, D = matrix.shape
+    assert N == kernel.shape[0] * kernel.shape[1]
+    
+    r =[]
+    for i in range(D):
+        m = matrix[:,i]
+        m.shape = kernel.shape
+        row = scipy.signal.convolve2d(m, kernel, mode='same')
+        row.shape = (N,)
+        r.append(row)
+    return np.array(r).T    
