@@ -18,10 +18,33 @@ def get(**keys):
     
 def set(value, **keys):
     db[make_key(**keys)] = value
+      
+# Context manager for the caching system
+class Item:
+    def __init__(self, **keys):
+        self.key = make_key(**keys)
+    
+    def __enter__(self):
+        return self
+        
+    def __exit__ (self, type, value, tb):
+        pass
+        
+    def set(self, value):
+        db[self.key] = value    
+    
+    def get(self):
+        return db.get(self.key, None)    
         
         
 if __name__=='__main__':
+
     print get(a=1, b=1)
     set(3, a=1, b=1)
     print get(a=1, b=1)
+    
+    with Item(c=1, d=3) as item:
+        print item.get()
+        item.set(4)
+        print item.get()
             
