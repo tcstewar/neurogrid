@@ -36,6 +36,9 @@ class Item:
     def get(self):
         return db.get(self.key, None)    
         
+    def __str__(self):
+        return '"%s"' % self.key    
+        
         
 if __name__=='__main__':
 
@@ -43,7 +46,7 @@ if __name__=='__main__':
     set(3, a=1, b=1)
     print get(a=1, b=1)
     
-    with Item(c=1, d=3) as item:
+    with Item(c=1, d=3) as item:   # not sure that this is a useful feature
         print item.get()
         item.set(4)
         print item.get()

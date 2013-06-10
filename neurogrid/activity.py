@@ -2,10 +2,11 @@ import numpy as np
 import samples
 
 
-def classic(neurons, encoders, rng, sample_count=500, use_spikes=False):
+def classic(neurons, encoders, rng, sample_count=500, use_spikes=False, X=None):
     N, D = encoders.shape
-    X = samples.random(sample_count, D, rng)
-    
+    if X is None:
+        X = samples.random(sample_count, D, rng)
+
     f_max = 1000
     inputs = np.dot(encoders, X.T)*f_max
     
