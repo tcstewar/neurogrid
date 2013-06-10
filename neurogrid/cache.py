@@ -18,6 +18,9 @@ def get(**keys):
     
 def set(value, **keys):
     db[make_key(**keys)] = value
+    
+import atexit
+atexit.register(db.close)
       
 # Context manager for the caching system
 class Item:

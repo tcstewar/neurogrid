@@ -1,6 +1,7 @@
 import numpy as np
 
 
+
 class RateNeuron:
     def __init__(self, N, rng, bias=200, nonlinear=1, balanced=False, 
                  tau_ref=0.002, tau_rc=0.02, input_scale = 0.005):
@@ -24,8 +25,10 @@ class RateNeuron:
     def rate(self, e_input, i_input):
         J = self.compute_current(e_input, i_input)
          
+        np.seterr(divide='ignore', invalid='ignore') 
         isi = self.tau_ref - self.tau_rc * np.log(
             1 - 1.0 / np.maximum(J, 0))
+        np.seterr(divide='warn', invalid='warn') 
         
         rate = np.where(J > 1, 1 / isi, 0)
         
