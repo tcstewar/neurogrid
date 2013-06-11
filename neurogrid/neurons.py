@@ -3,7 +3,7 @@ import numpy as np
 
 
 class RateNeuron:
-    def __init__(self, N, rng, bias=200, nonlinear=1, balanced=False, 
+    def __init__(self, N, rng, bias=500, nonlinear=1, balanced=False, 
                  tau_ref=0.002, tau_rc=0.02, input_scale = 0.005):
                  
         self.input_scale = input_scale         

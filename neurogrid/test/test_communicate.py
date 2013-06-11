@@ -81,7 +81,7 @@ class TestCommunicate(unittest.TestCase):
         #plt.show()
 
         rmse = np.sqrt(np.sum((X-Yhat)**2)/len(X))
-        self.assertLess(rmse, 0.1)
+        self.assertLess(rmse, 0.15)
             
     
     

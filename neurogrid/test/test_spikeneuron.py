@@ -19,13 +19,13 @@ class TestActivity(unittest.TestCase):
     
         mse = np.sum((A-A2)**2)/(N * S)
         
-        self.assertLess(mse, 2)
     
         #import matplotlib.pyplot as plt
         #plt.figure()
         #plt.plot(X[:,0], A2.T-A.T)
         #plt.show()
     
+        self.assertLess(mse, 3)
         
             
     
