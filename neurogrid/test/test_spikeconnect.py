@@ -8,13 +8,13 @@ class TestActivity(unittest.TestCase):
         self.rng = np.random.RandomState()
         
     def test_standard(self):
-        N1 = 50
-        N2 = 51
+        N1 = 30
+        N2 = 31
         D = 2
         S = 10
         T = 0.5
         dt = 0.001
-        pstc = 0.01
+        pstc = 0.04
         
         
         decay = np.exp(-dt/pstc)
@@ -59,33 +59,22 @@ class TestActivity(unittest.TestCase):
                 
                 Y.append(Yhat)
                 X_vals.append(X[i])
-                
+        Y = np.array(Y)
+        X_vals = np.array(X_vals)
+        
+        indices = [(i+1)*int(T/dt)-1 for i in range(S)]
 
-        import matplotlib.pyplot as plt
-        plt.plot(Y)
-        plt.plot(X_vals)
-        plt.show()
 
-        
-        return
-        
-        
-        X, A = ng.activity.classic(a.neurons, a.encoders, rng=self.rng)
-        d1 = a.get_decoder()
-        
-        Xhat = np.dot(A.T, d1)
-        
-        Y, B = ng.activity.classic(b.neurons, b.encoders, rng=self.rng, X=Xhat)
-        d2 = b.get_decoder()
-        Yhat = np.dot(B.T, d2)
-        
-        rmse = np.sqrt(np.sum((X-Yhat)**2)/len(X))
-        self.assertLess(rmse, 0.02)
-        
+        rmse = np.sqrt(np.sum((X_vals[indices]-Y[indices])**2)/S)
+        self.assertLess(rmse, 0.05)
+        #print rmse        
+
         #import matplotlib.pyplot as plt
-        #plt.scatter(X, Yhat)
+        #plt.plot(Y)
+        #plt.plot(X_vals)
         #plt.show()
-    
+
+        
         
             
     
