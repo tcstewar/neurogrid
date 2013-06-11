@@ -10,13 +10,14 @@ class TestActivity(unittest.TestCase):
     def test_classic(self):
 
         N = 20
+        S = 10
         n = ng.neurons.SpikeNeuron(N, self.rng, balanced=True, nonlinear=0)
         e = ng.encoders.random(N, 1, self.rng)
     
-        X, A = ng.activity.classic(n, e, self.rng, use_spikes=True, sample_count=10)
-        X, A2 = ng.activity.classic(n, e, self.rng, use_spikes=False, sample_count=10)
+        X, A = ng.activity.classic(n, e, self.rng, use_spikes=True, sample_count=S)
+        X, A2 = ng.activity.classic(n, e, self.rng, use_spikes=False, sample_count=S)
     
-        mse = np.sum((A-A2)**2)/(20*10)
+        mse = np.sum((A-A2)**2)/(N * S)
         
         self.assertLess(mse, 2)
     

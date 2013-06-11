@@ -18,7 +18,7 @@ class Ensemble:
         self.cache_neurons = cache.Item(name='neurons', N=rows*cols, seed=seed)
         self.neurons = self.cache_neurons.get()
         if self.neurons is None:
-            self.neurons = neurons.RateNeuron(rows*cols, self.rngs[0])
+            self.neurons = neurons.SpikeNeuron(rows*cols, self.rngs[0])
             self.cache_neurons.set(self.neurons)
 
         
