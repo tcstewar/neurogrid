@@ -5,7 +5,7 @@ import neurogrid as ng
 
 class TestActivity(unittest.TestCase):
     def setUp(self):
-        self.rng = np.random.RandomState()
+        self.rng = np.random.RandomState(seed=5)
         
     def test_standard(self):
         N1 = 30
@@ -35,7 +35,9 @@ class TestActivity(unittest.TestCase):
         d1 = a.get_decoder()
         d2 = b.get_decoder()
 
-        w = np.dot(d1, b.encoders.T)
+        #w = np.dot(d1, b.encoders.T)
+        w = ng.sparse.weights(a, b, 30, self.rng)
+        
         
 
         Y = []
@@ -65,14 +67,20 @@ class TestActivity(unittest.TestCase):
         indices = [(i+1)*int(T/dt)-1 for i in range(S)]
 
 
-        rmse = np.sqrt(np.sum((X_vals[indices]-Y[indices])**2)/S)
-        self.assertLess(rmse, 0.05)
-        #print rmse        
 
         #import matplotlib.pyplot as plt
         #plt.plot(Y)
         #plt.plot(X_vals)
+        
+        #plt.figure()
+        #plt.imshow(w[:30,:30])
+        
         #plt.show()
+        
+        rmse = np.sqrt(np.sum((X_vals[indices]-Y[indices])**2)/S)
+        print rmse        
+        self.assertLess(rmse, 0.05)
+        
 
         
         
