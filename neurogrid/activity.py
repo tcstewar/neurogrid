@@ -33,8 +33,9 @@ def classic(neurons, encoders, rng, sample_count=500, use_spikes=False, X=None, 
 
     # TODO: jitter orthogonally, not everywhere
     if input_noise>0:
-        e_input += rng.randn(*e_input.shape)*input_noise
-        i_input += rng.randn(*i_input.shape)*input_noise
+        noise = rng.randn(*e_input.shape)*input_noise
+        e_input += noise
+        i_input += noise
     
     
     if not use_spikes:

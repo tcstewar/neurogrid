@@ -50,10 +50,10 @@ class Ensemble:
             item.set(d)        
         return d
 
-    def get_dual_decoder(self, name='X', func=None, mode='nonnegative', fc_in=500, fr_in=500, fc_out=500, fr_out=500, input_noise=0):
+    def get_dual_decoder(self, name='X', func=None, mode='nonnegative', fc_in=500, fr_in=500, fc_out=500, fr_out=500, input_noise=0, activity_noise=0.1):
         item = cache.Item(name='decoder', decoder_name=name, seed=self.seed, 
                           neurons=self.cache_neurons, encoders=self.cache_encoders, 
-                          mode=mode, fc_in=fc_in, fr_in=fr_in, fc_out=fc_out, fr_out=fr_out, input_noise=input_noise)
+                          mode=mode, fc_in=fc_in, fr_in=fr_in, fc_out=fc_out, fr_out=fr_out, input_noise=input_noise, activity_noise=activity_noise)
         d = item.get()
         if d is None:
             X, A = activity.classic(self.neurons, self.encoders, self.rngs[2], fc=fc_in, fr=fr_in, input_noise=input_noise)    
@@ -64,8 +64,8 @@ class Ensemble:
             X_e = fc_out + fr_out * X       
             X_i = fc_out - fr_out * X       
                         
-            d_e = dfunc(A, X_e, self.rngs[3])
-            d_i = dfunc(A, X_i, self.rngs[3])
+            d_e = dfunc(A, X_e, self.rngs[3], noise=activity_noise)
+            d_i = dfunc(A, X_i, self.rngs[3], noise=activity_noise)
             d = d_e, d_i
             
             #X_e_hat = np.dot(A.T, d_e)

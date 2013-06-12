@@ -17,7 +17,7 @@ class TestIntegrator(unittest.TestCase):
         dt = 0.001
         pstc = 0.1
         
-        nonlinear = 0
+        nonlinear = 10
         
         decay = np.exp(-dt/pstc)
         
@@ -32,6 +32,12 @@ class TestIntegrator(unittest.TestCase):
         XA = ng.samples.random(S, D, self.rng)*0.1             
         self.rng.shuffle(XA)
         XA[[i*2+1 for i in range(S/2)],:] = 0   # zero out every other input to show steady response
+        
+        print XA.shape
+        XA = np.array([[np.cos(t/(50.0)*2*np.pi)] for t in range(200)])
+        print XA.shape
+        T = 0.01
+        S = 200
 
         
         ABw_e = np.dot(Ad_e, np.where(B.encoders.T>0, B.encoders.T, 0)) + np.dot(Ad_i, np.where(B.encoders.T<0, -B.encoders.T, 0))
