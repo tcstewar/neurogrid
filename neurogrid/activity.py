@@ -3,16 +3,27 @@ import samples
 
 
 def create_stimulus(X, encoders, fr, fc):
-    input = np.dot(encoders, X.T)
-    e_input = fc + input * fr
-    i_input = fc - input * fr 
+    fp = fc + X * fr
+    fm = fc - X * fr
     
-    return e_input, i_input
+    
+    e_input = np.dot(fp, np.where(encoders.T>0, encoders.T, 0)) + np.dot(fm, np.where(encoders.T<0, -encoders.T, 0))
+    i_input = np.dot(fm, np.where(encoders.T>0, encoders.T, 0)) + np.dot(fp, np.where(encoders.T<0, -encoders.T, 0))
+
+    return e_input.T, i_input.T
+
+    # Note: This simplistic approach does not work: 
+    #  it misses a factor of (np.where(encoders.T<0, -encoders.T, 0)+np.where(encoders.T<0, -encoders.T, 0)) on fc
+    #input = np.dot(encoders, X.T)
+    #e_input = fc + input * fr
+    #i_input = fc - input * fr 
+    
+    #return e_input, i_input
 
 
 
 
-def classic(neurons, encoders, rng, sample_count=500, use_spikes=False, X=None, fr=500, fc=500):
+def classic(neurons, encoders, rng, sample_count=500, use_spikes=False, X=None, fr=500, fc=500, input_noise=0):
     N, D = encoders.shape
     if X is None:
         X = samples.random(sample_count, D, rng)
@@ -20,6 +31,10 @@ def classic(neurons, encoders, rng, sample_count=500, use_spikes=False, X=None, 
 
     e_input, i_input = create_stimulus(X, encoders, fr, fc)
 
+    # TODO: jitter orthogonally, not everywhere
+    if input_noise>0:
+        e_input += rng.randn(*e_input.shape)*input_noise
+        i_input += rng.randn(*i_input.shape)*input_noise
     
     
     if not use_spikes:
