@@ -12,7 +12,7 @@ class TestNonlinearNeuron(unittest.TestCase):
         N2 = 31
         N3 = 32
         
-        D = 2   # TODO: figure out what's wrong when D>1.  This is something fundamental....
+        D = 2  
         S = 10
         T = 0.5
         dt = 0.001
@@ -49,10 +49,6 @@ class TestNonlinearNeuron(unittest.TestCase):
         XA = ng.samples.random(S, D, self.rng)                
         XB = ng.samples.random(S, D, self.rng)                
         np.random.shuffle(XB)
-
-        print Ad_e.shape
-        print C.encoders.shape
-        print C.encoders
         
         
         
