@@ -25,7 +25,7 @@ class TestIntegrator(unittest.TestCase):
         B = ng.ensemble.Ensemble(N2, N2, D, seed=3, nonlinear=nonlinear, balanced=False, encoder_type='random')
         
         Ad_e, Ad_i = A.get_dual_decoder(fr_in=400, fc_in=500, fr_out=180, fc_out=200, input_noise=0)
-        Bd_e, Bd_i = B.get_dual_decoder(fr_in=180, fc_in=400, fr_out=180, fc_out=200, input_noise=0)
+        Bd_e, Bd_i = B.get_dual_decoder(fr_in=180, fc_in=400, fr_out=180, fc_out=200, input_noise=50)
         
         Bd = B.get_decoder(fr=180, fc=400)                
         
@@ -33,11 +33,11 @@ class TestIntegrator(unittest.TestCase):
         self.rng.shuffle(XA)
         XA[[i*2+1 for i in range(S/2)],:] = 0   # zero out every other input to show steady response
         
-        print XA.shape
-        XA = np.array([[np.cos(t/(50.0)*2*np.pi)] for t in range(200)])
-        print XA.shape
-        T = 0.01
-        S = 200
+        #print XA.shape
+        #XA = np.array([[np.cos(t/(50.0)*2*np.pi)] for t in range(200)])
+        #print XA.shape
+        #T = 0.01
+        #S = 200
 
         
         ABw_e = np.dot(Ad_e, np.where(B.encoders.T>0, B.encoders.T, 0)) + np.dot(Ad_i, np.where(B.encoders.T<0, -B.encoders.T, 0))
