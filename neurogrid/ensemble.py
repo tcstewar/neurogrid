@@ -28,6 +28,8 @@ class Ensemble:
         if self.encoders is None: 
             if encoder_type=='random':
                 self.encoders = encoders.random(rows*cols, dimensions, self.rngs[1])
+            elif encoder_type=='diamond':
+                self.encoders = encoders.diamond(rows*cols, dimensions, self.rngs[1])
             elif encoder_type=='swapped':   
                 self.encoders = encoders.swapped(rows*cols, dimensions, self.rngs[1], rows, cols, iterations=200)
             elif encoder_type=='kohonen':
@@ -39,6 +41,7 @@ class Ensemble:
         d = item.get()
         if d is None:
             X, A = activity.classic(self.neurons, self.encoders, self.rngs[2], fc=fc, fr=fr)    
+            
             if func is not None:
                 X = func(X)
             dfunc = {'classic':decoders.classic, 
@@ -63,6 +66,7 @@ class Ensemble:
             d_e = dfunc(A, X_e, self.rngs[3])
             d_i = dfunc(A, X_i, self.rngs[3])
             d = d_e, d_i
+            
             item.set(d)        
         return d
 

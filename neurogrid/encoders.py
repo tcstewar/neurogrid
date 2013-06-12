@@ -5,6 +5,20 @@ def random(N, D, rng):
     norm = np.sqrt(np.sum(samples*samples, axis=1))
     return samples/norm[:,None]
 
+def diamond(N, D, rng):
+    assert D==2
+    x = rng.random_sample(N)
+    signy = rng.random_sample(N)
+    signx = rng.random_sample(N)
+    
+    y = np.where(signy<0.5, 1-x, x-1)
+    x = np.where(signx<0.5, x, -x)
+    
+    return np.vstack((x, y)).T
+    
+    
+    
+
 def score(encoders, index, rows, cols):
     i = index % cols
     j = index / cols

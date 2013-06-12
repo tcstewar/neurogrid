@@ -13,6 +13,13 @@ class TestEncoders(unittest.TestCase):
             e = ng.encoders.random(10, D, self.rng)
             self.assertEqual(e.shape, (10,D))
             self.assertAlmostEqual(np.sum(np.sum(e*e, axis=1) - np.ones((10,))), 0)
+
+    def test_diamond(self):
+        e = ng.encoders.diamond(10, 2, self.rng)
+        
+        
+        self.assertEqual(np.sum(np.sum(np.abs(e),axis=1) - np.ones(10)),0)
+
             
     def test_swapped(self):    
         k = np.array([0, 1, 0, 1, 4, 1, 0, 1, 0], dtype='f')/8
