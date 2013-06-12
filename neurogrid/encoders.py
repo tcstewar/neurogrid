@@ -6,15 +6,10 @@ def random(N, D, rng):
     return samples/norm[:,None]
 
 def diamond(N, D, rng):
-    assert D==2
-    x = rng.random_sample(N)
-    signy = rng.random_sample(N)
-    signx = rng.random_sample(N)
-    
-    y = np.where(signy<0.5, 1-x, x-1)
-    x = np.where(signx<0.5, x, -x)
-    
-    return np.vstack((x, y)).T
+    samples = rng.randn(N, D)
+    norm = np.sum(np.abs(samples), axis=1)
+    return samples/norm[:,None]
+
     
     
     
