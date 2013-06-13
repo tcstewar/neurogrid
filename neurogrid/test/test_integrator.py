@@ -12,8 +12,8 @@ class TestIntegrator(unittest.TestCase):
         N2 = 21
         
         D = 1  
-        S = 20
-        T = 0.5
+        S = 200
+        T = 0.05
         dt = 0.001
         pstc = 0.1
         
@@ -25,14 +25,18 @@ class TestIntegrator(unittest.TestCase):
         A = ng.ensemble.Ensemble(N1, N1, D, seed=6, nonlinear=nonlinear, balanced=balanced, encoder_type='random')
         B = ng.ensemble.Ensemble(N2, N2, D, seed=7, nonlinear=nonlinear, balanced=balanced, encoder_type='random')
         
-        Ad_e, Ad_i = A.get_dual_decoder(fr_in=400, fc_in=500, fr_out=50, fc_out=250, input_noise=50, sample_count=500)
+        Ad_e, Ad_i = A.get_dual_decoder(fr_in=400, fc_in=500, fr_out=250, fc_out=250, input_noise=50, sample_count=500)
         Bd_e, Bd_i = B.get_dual_decoder(fr_in=250, fc_in=500, fr_out=250, fc_out=250, input_noise=200, sample_count=500)
         
         Bd = B.get_decoder(fr=250, fc=500)                
         
-        XA = ng.samples.random(S, D, self.rng)             
-        self.rng.shuffle(XA)
-        XA[[i*2+1 for i in range(S/2)],:] = 0   # zero out every other input to show steady response
+        pts = ng.samples.random(S/10, D, self.rng)             
+        self.rng.shuffle(pts)
+        
+        XA = np.zeros((S, D), dtype='f')
+        
+        
+        XA[[i*10 for i in range(S/10)],:] = pts
         
         #print XA.shape
         #XA = np.array([[np.cos(t/(50.0)*2*np.pi)] for t in range(200)])
