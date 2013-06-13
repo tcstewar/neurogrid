@@ -5,11 +5,11 @@ import neurogrid as ng
 
 class TestIntegrator(unittest.TestCase):
     def setUp(self):
-        self.rng = np.random.RandomState(seed=5)
+        self.rng = np.random.RandomState(seed=8)
         
     def test_integrator(self):
-        N1 = 30
-        N2 = 31
+        N1 = 20
+        N2 = 21
         
         D = 1  
         S = 20
@@ -18,18 +18,19 @@ class TestIntegrator(unittest.TestCase):
         pstc = 0.1
         
         nonlinear = 10
+        balanced = False
         
         decay = np.exp(-dt/pstc)
         
-        A = ng.ensemble.Ensemble(N1, N1, D, seed=1, nonlinear=nonlinear, balanced=False, encoder_type='random')
-        B = ng.ensemble.Ensemble(N2, N2, D, seed=3, nonlinear=nonlinear, balanced=False, encoder_type='random')
+        A = ng.ensemble.Ensemble(N1, N1, D, seed=6, nonlinear=nonlinear, balanced=balanced, encoder_type='random')
+        B = ng.ensemble.Ensemble(N2, N2, D, seed=7, nonlinear=nonlinear, balanced=balanced, encoder_type='random')
         
-        Ad_e, Ad_i = A.get_dual_decoder(fr_in=400, fc_in=500, fr_out=180, fc_out=200, input_noise=0)
-        Bd_e, Bd_i = B.get_dual_decoder(fr_in=180, fc_in=400, fr_out=180, fc_out=200, input_noise=50)
+        Ad_e, Ad_i = A.get_dual_decoder(fr_in=400, fc_in=500, fr_out=50, fc_out=250, input_noise=50, sample_count=500)
+        Bd_e, Bd_i = B.get_dual_decoder(fr_in=250, fc_in=500, fr_out=250, fc_out=250, input_noise=200, sample_count=500)
         
-        Bd = B.get_decoder(fr=180, fc=400)                
+        Bd = B.get_decoder(fr=250, fc=500)                
         
-        XA = ng.samples.random(S, D, self.rng)*0.1             
+        XA = ng.samples.random(S, D, self.rng)             
         self.rng.shuffle(XA)
         XA[[i*2+1 for i in range(S/2)],:] = 0   # zero out every other input to show steady response
         
@@ -53,6 +54,7 @@ class TestIntegrator(unittest.TestCase):
         input = []
         
         Ae_input, Ai_input = ng.activity.create_stimulus(XA, A.encoders, fc=500, fr=400)
+
                 
         t = []
         now = 0
@@ -82,7 +84,6 @@ class TestIntegrator(unittest.TestCase):
                 
                 t.append(now)
                 now += dt
-                
 
         import matplotlib.pyplot as plt
         plt.figure()
