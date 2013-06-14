@@ -1,11 +1,16 @@
 import shelve
 
-db = shelve.open('/tmp/neurogrid')
+import tempfile
+import os.path
+
+filename = os.path.join(tempfile.gettempdir(), 'neurogrid')
+
+db = shelve.open(filename)
 
 def flush():
     global db
     db.close()
-    db = shelve.open('/tmp/neurogrid')
+    db = shelve.open(filename)
     
             
 def make_key(**keys):    
