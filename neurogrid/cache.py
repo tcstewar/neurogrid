@@ -14,6 +14,8 @@ def flush():
     
             
 def make_key(**keys):    
+    if 'seed' in keys.items():
+        assert keys['seed']!=None       # make sure we don't use the cache when there's no seed
     items=['%s=%s'%(k,v) for k,v in sorted(keys.items())]
     return ','.join(items)
     

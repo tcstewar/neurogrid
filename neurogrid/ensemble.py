@@ -9,15 +9,24 @@ from . import dendrites
 import numpy as np
 
 class Ensemble:
-    def __init__(self, rows, cols, dimensions, seed, encoder_type='random', bias=500, balanced=True, nonlinear=0, dendrite_width=None, input_scale=0.005):
+    def __init__(self, rows, cols, dimensions, seed, encoder_type='random', bias=500, balanced=True, nonlinear=0, dendrite_width=None, input_scale=0.005, use_cache=True, encoder=None):
         self.seed = seed
         rng = np.random.RandomState(seed)        
         self.rngs = [np.random.RandomState(rng.randint(0,0x7fffffff)) for i in range(10)]
+        
+        if not use_cache:
+            self.seed = None
 
-        self.cache_encoders = cache.Item(name='encoders', encoder_type=encoder_type, 
-                        rows=rows, cols=cols, dimensions=dimensions, 
-                        seed=seed)
-        self.encoders = self.cache_encoders.get()
+        if encoder is not None:
+            self.encoders = encoder
+        elif self.seed is None:
+            self.encoders=None
+        else:
+            self.cache_encoders = cache.Item(name='encoders', encoder_type=encoder_type, 
+                            rows=rows, cols=cols, dimensions=dimensions, 
+                            seed=seed)
+            self.encoders = self.cache_encoders.get()
+            
         if self.encoders is None: 
             if encoder_type=='random':
                 self.encoders = encoders.random(rows*cols, dimensions, self.rngs[1])
@@ -27,11 +36,14 @@ class Ensemble:
                 self.encoders = encoders.swapped(rows*cols, dimensions, self.rngs[1], rows, cols, iterations=200)
             elif encoder_type=='kohonen':
                 self.encoders = encoders.kohonen(rows*cols, dimensions, self.rngs[1], rows, cols, iterations=200)
-            self.cache_encoders.set(self.encoders)    
+            if self.seed is not None:      
+                self.cache_encoders.set(self.encoders)    
 
-        
-        self.cache_neurons = cache.Item(name='neurons', N=rows*cols, seed=seed, bias=bias, balanced=balanced, nonlinear=nonlinear, dendrite_width=dendrite_width, input_scale=input_scale)
-        self.neurons = self.cache_neurons.get()
+        if seed is None:
+            self.neurons = None
+        else:
+            self.cache_neurons = cache.Item(name='neurons', N=rows*cols, seed=seed, bias=bias, balanced=balanced, nonlinear=nonlinear, dendrite_width=dendrite_width, input_scale=input_scale)
+            self.neurons = self.cache_neurons.get()
         if self.neurons is None:
             dendrite = None
             if dendrite_width is not None:
@@ -39,15 +51,19 @@ class Ensemble:
         
             self.neurons = neurons.SpikeNeuron(rows*cols, self.rngs[0], bias=bias, balanced=balanced, nonlinear=nonlinear, dendrite=dendrite, input_scale=input_scale)
             
-            self.cache_neurons.set(self.neurons)
+            if self.seed is not None:
+                self.cache_neurons.set(self.neurons)
 
     def get_average_rate(self, fc=500, fr=500):
         X, A = activity.classic(self.neurons, self.encoders, self.rngs[6], fc=fc, fr=fr) 
         return np.sum(A)/(A.shape[0]*A.shape[1])
                 
     def get_decoder(self, name='X', func=None, mode='classic', fc=500, fr=500, input_noise=0):
-        item = cache.Item(name='decoder', decoder_name=name, seed=self.seed, neurons=self.cache_neurons, encoders=self.cache_encoders, mode=mode, fc=fc, fr=fr, input_noise=input_noise)
-        d = item.get()
+        if self.seed is None:
+            d = None
+        else:
+            item = cache.Item(name='decoder', decoder_name=name, seed=self.seed, neurons=self.cache_neurons, encoders=self.cache_encoders, mode=mode, fc=fc, fr=fr, input_noise=input_noise)
+            d = item.get()
         if d is None:
             X, A = activity.classic(self.neurons, self.encoders, self.rngs[2], fc=fc, fr=fr, input_noise=input_noise) 
 
@@ -64,14 +80,18 @@ class Ensemble:
             dfunc = {'classic':decoders.classic, 
                     'nonnegative':decoders.nonnegative}[mode]
             d = dfunc(A, X, self.rngs[3])
-            item.set(d)        
+            if self.seed is not None:
+                item.set(d)        
         return d
 
     def get_dual_decoder(self, name='X', func=None, mode='nonnegative', fc_in=500, fr_in=500, fc_out=500, fr_out=500, input_noise=0, activity_noise=0.1):
-        item = cache.Item(name='decoder', decoder_name=name, seed=self.seed, 
-                          neurons=self.cache_neurons, encoders=self.cache_encoders, 
-                          mode=mode, fc_in=fc_in, fr_in=fr_in, fc_out=fc_out, fr_out=fr_out, input_noise=input_noise, activity_noise=activity_noise)
-        d = item.get()
+        if self.seed is None:
+            d = None
+        else:
+            item = cache.Item(name='decoder', decoder_name=name, seed=self.seed, 
+                              neurons=self.cache_neurons, encoders=self.cache_encoders, 
+                              mode=mode, fc_in=fc_in, fr_in=fr_in, fc_out=fc_out, fr_out=fr_out, input_noise=input_noise, activity_noise=activity_noise)
+            d = item.get()
         if d is None:
             X, A = activity.classic(self.neurons, self.encoders, self.rngs[2], fc=fc_in, fr=fr_in, input_noise=input_noise)    
             if func is not None:
@@ -89,7 +109,8 @@ class Ensemble:
             #mse = np.sum((X_e-X_e_hat)**2)/len(X_e)
             #print 'rmse',np.sqrt(mse)
             
-            item.set(d)        
+            if self.seed is not None:
+                item.set(d)        
         return d
 
 

@@ -6,9 +6,12 @@ from . import decoders
 from . import cache
 
 def weights(a, b, fan_in, rng, name='X', func=None, adjust_target=False, fc=500, fr=500, input_noise=0):
-    item = cache.Item(a_n=a.cache_neurons, a_e=a.cache_encoders, adjust_target=adjust_target,
-                    b=b.cache_encoders, name=name, fan_in=fan_in, seed=rng.get_state(), input_noise=input_noise)
-    w = item.get()
+    if a.seed is None or b.seed is None:
+        w = None
+    else:    
+        item = cache.Item(a_n=a.cache_neurons, a_e=a.cache_encoders, adjust_target=adjust_target,
+                        b=b.cache_encoders, name=name, fan_in=fan_in, seed=rng.get_state(), input_noise=input_noise)
+        w = item.get()
     if w is None:
 
 
@@ -38,14 +41,18 @@ def weights(a, b, fan_in, rng, name='X', func=None, adjust_target=False, fc=500,
             
             w[connect[i],i] = np.dot(d, b.encoders[i])
             
-        item.set(w)    
+        if a.seed is not None and b.seed is not None:      
+            item.set(w)    
     return w    
         
         
 def dual_weights(a, b, fan_in, rng, name='X', func=None, fc_in=500, fr_in=500, fc_out=500, fr_out=500, input_noise=0, activity_noise=0.1):
-    item = cache.Item(a_n=a.cache_neurons, a_e=a.cache_encoders, 
-                    b=b.cache_encoders, name=name, fan_in=fan_in, seed=rng.get_state(), input_noise=input_noise, activity_noise=activity_noise)
-    w = item.get()
+    if a.seed is None or b.seed is None:
+        w = None
+    else:
+        item = cache.Item(a_n=a.cache_neurons, a_e=a.cache_encoders, 
+                        b=b.cache_encoders, name=name, fan_in=fan_in, seed=rng.get_state(), input_noise=input_noise, activity_noise=activity_noise)
+        w = item.get()
     if w is None:
 
         X, A = activity.classic(a.neurons, a.encoders, rng, fc=fc_in, fr=fr_in, input_noise=input_noise)
@@ -73,7 +80,8 @@ def dual_weights(a, b, fan_in, rng, name='X', func=None, fc_in=500, fr_in=500, f
 
         w = w_e, w_i
             
-        item.set(w)    
+        if a.seed is not None and b.seed is not None:    
+            item.set(w)    
     return w    
 
 
