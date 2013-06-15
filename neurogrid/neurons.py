@@ -1,25 +1,30 @@
 import numpy as np
 
+from . import dendrites
 
 
 class RateNeuron:
     def __init__(self, N, rng, bias=500, nonlinear=1, balanced=False, 
-                 tau_ref=0.002, tau_rc=0.02, input_scale = 0.005):
-                 
+                 tau_ref=0.002, tau_rc=0.02, input_scale = 0.005, dendrite=None):
         self.input_scale = input_scale         
         self.tau_ref = tau_ref
         self.tau_rc = tau_rc         
-        self.bias = rng.randn(N) * bias * input_scale
-        self.e_gain = rng.uniform(0.5, 2, N) * input_scale
+        self.e_gain = (rng.uniform(0.5, 4, N)**2) * input_scale 
+        
+        self.bias = rng.uniform(-1.5, 2.5, N) * bias * input_scale * 5
+        self.dendrite = dendrite
         if balanced:
             self.i_gain = self.e_gain
         else:    
-            self.i_gain = rng.uniform(0.5, 2, N) * input_scale
+            self.i_gain = (rng.uniform(0.5, 2, N)**2) * input_scale
         self.nonlinear = rng.uniform(-0.001*nonlinear, 0.001*nonlinear, N) * input_scale
         
     def compute_current(self, e_input, i_input):
         J = e_input*self.e_gain[:,None] - i_input*self.i_gain[:,None] + \
-                (e_input*i_input)*self.nonlinear[:,None] + self.bias[:, None]
+                (e_input*i_input)*self.nonlinear[:,None]
+        if self.dendrite is not None:
+            J = dendrites.apply_matrix(J, self.dendrite)
+        J = J + self.bias[:, None]    
         return J
         
     def rate(self, e_input, i_input):
@@ -44,8 +49,10 @@ class SpikeNeuron(RateNeuron):
     def tick(self, e_input, i_input, dt):
 
         J = e_input*self.e_gain - i_input*self.i_gain + \
-                (e_input*i_input)*self.nonlinear + self.bias
-
+                (e_input*i_input)*self.nonlinear
+        if self.dendrite is not None:
+            J = dendrites.apply_vector(J, self.dendrite)
+        J = J + self.bias    
         # Euler's method
         dV = dt / self.tau_rc * (J - self.voltage)
 
