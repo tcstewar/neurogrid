@@ -48,7 +48,7 @@ def dual_weights(a, b, fan_in, rng, name='X', func=None, fc_in=500, fr_in=500, f
     w = item.get()
     if w is None:
 
-        X, A = activity.classic(a.neurons, a.encoders, rng, fc=fc, fr=fr, input_noise=input_noise)
+        X, A = activity.classic(a.neurons, a.encoders, rng, fc=fc_in, fr=fr_in, input_noise=input_noise)
         N_A, S = A.shape
         N_B = len(b.encoders)
         
@@ -65,8 +65,8 @@ def dual_weights(a, b, fan_in, rng, name='X', func=None, fc_in=500, fr_in=500, f
         for i in range(N_B):
             A_sub = A[connect[i]]
             
-            d_e = decoders.nonnegative(A_sub, target_e, rng, activity_noise=activity_noise)
-            d_i = decoders.nonnegative(A_sub, target_i, rng, activity_noise=activity_noise)
+            d_e = decoders.nonnegative(A_sub, target_e, rng, noise=activity_noise)
+            d_i = decoders.nonnegative(A_sub, target_i, rng, noise=activity_noise)
             
             w_e[connect[i],i] = np.dot(d_e, np.where(b.encoders[i].T>0, b.encoders[i].T, 0)) + np.dot(d_i, np.where(b.encoders[i].T<0, -b.encoders[i].T, 0))
             w_i[connect[i],i] = np.dot(d_i, np.where(b.encoders[i].T>0, b.encoders[i].T, 0)) + np.dot(d_e, np.where(b.encoders[i].T<0, -b.encoders[i].T, 0))
