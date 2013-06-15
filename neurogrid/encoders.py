@@ -32,7 +32,6 @@ def swapped(N, D, rng, rows, cols, iterations=100, encoders=None):
         encoders = random(N, D, rng)
     
     for k in range(iterations):
-        print k
         target = rng.randint(0, N, N)
         for i in range(N):
             j = target[i]
