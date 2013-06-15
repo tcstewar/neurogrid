@@ -13,7 +13,8 @@ def blur_kernel(rows, cols, width, surround=True):
                 dy = j
                 if dy>cols/2: dy-=cols
             
-                distance = float(abs(dx)+abs(dy))#math.sqrt(dx*dx + dy*dy)
+                distance = float(abs(dx)+abs(dy))
+                #distance = math.sqrt(dx*dx + dy*dy)
                 kernel[i, j] = math.exp(-distance/width)
 
         kernel /= np.sum(kernel)
