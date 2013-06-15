@@ -45,11 +45,11 @@ class Ensemble:
         X, A = activity.classic(self.neurons, self.encoders, self.rngs[6], fc=fc, fr=fr) 
         return np.sum(A)/(A.shape[0]*A.shape[1])
                 
-    def get_decoder(self, name='X', func=None, mode='classic', fc=500, fr=500):
-        item = cache.Item(name='decoder', decoder_name=name, seed=self.seed, neurons=self.cache_neurons, encoders=self.cache_encoders, mode=mode, fc=fc, fr=fr)
+    def get_decoder(self, name='X', func=None, mode='classic', fc=500, fr=500, input_noise=0):
+        item = cache.Item(name='decoder', decoder_name=name, seed=self.seed, neurons=self.cache_neurons, encoders=self.cache_encoders, mode=mode, fc=fc, fr=fr, input_noise=input_noise)
         d = item.get()
         if d is None:
-            X, A = activity.classic(self.neurons, self.encoders, self.rngs[2], fc=fc, fr=fr) 
+            X, A = activity.classic(self.neurons, self.encoders, self.rngs[2], fc=fc, fr=fr, input_noise=input_noise) 
 
             #import pylab
             #pylab.plot(X, A.T)
