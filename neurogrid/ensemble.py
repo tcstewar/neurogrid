@@ -67,13 +67,14 @@ class Ensemble:
         if d is None:
             X, A = activity.classic(self.neurons, self.encoders, self.rngs[2], fc=fc, fr=fr, input_noise=input_noise) 
 
-            #import pylab
-            #pylab.plot(X, A.T)
-            #coverage = np.sum(np.where(A.T>0, 1.0, 0.0))/(A.shape[0]*A.shape[1])
-            #max_rate = np.max(A)
-            #avg_rate = np.sum(A)/(A.shape[0]*A.shape[1])
-            #pylab.title('Coverage: %1.3f  Max:%1.3f  Avg:%1.3f'%(coverage, max_rate, avg_rate))
-            #pylab.show()
+            if False:
+                import pylab
+                pylab.plot(X, A.T)
+                coverage = np.sum(np.where(A.T>0, 1.0, 0.0))/(A.shape[0]*A.shape[1])
+                max_rate = np.max(A)
+                avg_rate = np.sum(A)/(A.shape[0]*A.shape[1])
+                pylab.title('Coverage: %1.3f  Max:%1.3f  Avg:%1.3f'%(coverage, max_rate, avg_rate))
+                pylab.show()
             
             if func is not None:
                 X = func(X)

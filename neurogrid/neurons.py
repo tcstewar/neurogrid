@@ -16,7 +16,7 @@ class RateNeuron:
         if balanced:
             self.i_gain = self.e_gain
         else:    
-            self.i_gain = (rng.uniform(0.5, 2, N)**2) * input_scale
+            self.i_gain = (rng.uniform(0.5, 4, N)**2) * input_scale
         self.nonlinear = rng.uniform(-0.001*nonlinear, 0.001*nonlinear, N) * input_scale
         
     def compute_current(self, e_input, i_input):
