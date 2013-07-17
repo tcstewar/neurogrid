@@ -20,16 +20,22 @@ class RateNeuron:
         self.nonlinear = rng.uniform(-0.001*nonlinear, 0.001*nonlinear, N) * input_scale
         
     def compute_current(self, e_input, i_input):
-        J = e_input*self.e_gain[:,None] - i_input*self.i_gain[:,None] + \
-                (e_input*i_input)*self.nonlinear[:,None]
-        if self.dendrite is not None:
-            J = dendrites.apply_matrix(J, self.dendrite)
-        J = J + self.bias[:, None]    
+        if len(e_input.shape)==1:
+            J = e_input*self.e_gain - i_input*self.i_gain + \
+                    (e_input*i_input)*self.nonlinear
+            if self.dendrite is not None:
+                J = dendrites.apply_vector(J, self.dendrite)
+            J = J + self.bias    
+        else:    
+            J = e_input*self.e_gain[:,None] - i_input*self.i_gain[:,None] + \
+                    (e_input*i_input)*self.nonlinear[:,None]
+            if self.dendrite is not None:
+                J = dendrites.apply_matrix(J, self.dendrite)
+            J = J + self.bias[:, None]    
         return J
         
     def rate(self, e_input, i_input):
         J = self.compute_current(e_input, i_input)
-         
         np.seterr(divide='ignore', invalid='ignore') 
         isi = self.tau_ref - self.tau_rc * np.log(
             1 - 1.0 / np.maximum(J, 0))
@@ -47,12 +53,8 @@ class SpikeNeuron(RateNeuron):
         self.refractory_time = np.zeros(N, dtype='f')
         
     def tick(self, e_input, i_input, dt):
-
-        J = e_input*self.e_gain - i_input*self.i_gain + \
-                (e_input*i_input)*self.nonlinear
-        if self.dendrite is not None:
-            J = dendrites.apply_vector(J, self.dendrite)
-        J = J + self.bias    
+        J = self.compute_current(e_input, i_input)
+        
         # Euler's method
         dV = dt / self.tau_rc * (J - self.voltage)
 
