@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.optimize
 
-def classic(activity, targets, rng, noise=0.1):
+def classic(activity, targets, rng, noise=0.1, minSV=0.01):
     A = activity
     X = targets
     
@@ -10,13 +10,13 @@ def classic(activity, targets, rng, noise=0.1):
     G = np.dot(A, A.T)
     U = np.dot(A, X)
     
-    Ginv = np.linalg.pinv(G)
+    Ginv = np.linalg.pinv(G, rcond=minSV)
     d = np.dot(Ginv, U)
     
     return d
 
-def sparse_random(activity, targets, rng, noise=0.1, sparsity=0.8):
-    d = classic(activity, targets, rng, noise)
+def sparse_random(activity, targets, rng, noise=0.1, sparsity=0.8, minSV=0.01):
+    d = classic(activity, targets, rng, noise, minSV=minSV)
     
     N = len(activity)
     for i in range(N):
@@ -28,7 +28,7 @@ def sparse_random(activity, targets, rng, noise=0.1, sparsity=0.8):
     return d
 
 
-def sparse_greedy(activity, targets, rng, noise=0.1, sparsity=0.8):
+def sparse_greedy(activity, targets, rng, noise=0.1, sparsity=0.8, minSV=0.01):
     d = classic(activity, targets, rng, noise)
     
     weight = np.sum(d*d, axis=1)
@@ -38,7 +38,7 @@ def sparse_greedy(activity, targets, rng, noise=0.1, sparsity=0.8):
     
     keep_index = index[N:]
     
-    d2 = classic(activity[keep_index], targets, rng, noise)
+    d2 = classic(activity[keep_index], targets, rng, noise, minSV=minSV)
     
     d = d*0
     d[keep_index] = d2
@@ -47,13 +47,13 @@ def sparse_greedy(activity, targets, rng, noise=0.1, sparsity=0.8):
 
 
 
-def lstsq(activity, targets, rng, noise=0.1):
+def lstsq(activity, targets, rng, noise=0.1, minSV=0.01):
     A = activity
     X = targets
     
     A = A + rng.randn(*A.shape)*(noise*np.max(A))
     
-    return np.linalg.lstsq(A.T, X)[0]
+    return np.linalg.lstsq(A.T, X, rcond=minSV)[0]
     
 def nonnegative(activity, targets, rng, noise=0.1):
     A = activity
