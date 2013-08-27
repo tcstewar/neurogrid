@@ -14,6 +14,20 @@ def classic(activity, targets, rng, noise=0.1, minSV=0.01):
     d = np.dot(Ginv, U)
     
     return d
+    
+def classic2(activity, targets, rng, noise=0.1, minSV=0.0001):
+    A = activity
+    X = targets
+    
+    #A = A + rng.randn(*A.shape)*(noise*np.max(A))
+    G = np.dot(A, A.T)
+    G = G + np.eye(A.shape[0])*(noise*np.max(A))**2
+    U = np.dot(A, X)
+    
+    Ginv = np.linalg.pinv(G, rcond=minSV)
+    d = np.dot(Ginv, U)
+    
+    return d
 
 def sparse_random(activity, targets, rng, noise=0.1, sparsity=0.8, minSV=0.01):
     d = classic(activity, targets, rng, noise, minSV=minSV)
