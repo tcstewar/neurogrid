@@ -9,3 +9,4 @@ import dendrites
 import cache
 import sparse
 import probability
+import conductance_neurons
