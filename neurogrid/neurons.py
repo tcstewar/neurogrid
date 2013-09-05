@@ -1,3 +1,13 @@
+"""A simple neuron model that can have some NeuroGrid-like effects.
+
+This is basically an LIF model with some pre-processing of its data.
+The idea is that excitatory and inhibitory inputs can have different
+gains, and there can be a non-linear interaction term (product of
+excitatory and inhibitory inputs) that can also be added.  After this
+pre-processing, a standard LIF model is used, giving both a rate and
+a spiking implementation.
+"""
+
 import numpy as np
 
 from . import dendrites
@@ -5,21 +15,54 @@ from . import dendrites
 
 class RateNeuron:
     def __init__(self, N, rng, bias=500, nonlinear=1, balanced=False, 
-                 tau_ref=0.002, tau_rc=0.02, input_scale = 0.005, dendrite=None):
+                 tau_ref=0.002, tau_rc=0.02, input_scale=0.005, 
+                 dendrite=None):
+        """Create a set of rate neurons.
+        
+        These are LIF neurons with some preprocessing.  Inputs are
+        spread using an optional dendrite matrix: `dot(e_in, dendrite)`
+        and then combined in the following manner: 
+        `e_in*e_gain + i_in*i_gain + e_in*i_in*nonlinear + bias`
+        Each neuron gets its own randomly generated `e_gain`, `i_gain`,
+        `nonlinear`, and `bias`.  The ranges for these random choices
+        have been vaguely hand-fit to look like Neurogrid neurons.
+
+        :param integer N: number of neurons
+        :param numpy.random.RandomState rng: randon number generator
+        :param float bias: scaling factor for bias current
+        :param float nonlinear: amount of nonlinearity (0 is none, 
+                                10 is close to that seen in neurogrid)
+        :param float balanced: whether or not the gain on the inhibitory
+                               input is the same as the excitatory gain
+        :param float tau_ref: refractory time (in seconds)
+        :param float tau_rc: membrane time constant (in seconds)
+        :param matrix dendrite: NxN matrix for spreading activation
+        :param float input_scale: overall scaling factor for the input      
+        """
         self.input_scale = input_scale         
         self.tau_ref = tau_ref
         self.tau_rc = tau_rc         
-        self.e_gain = (rng.uniform(0.5, 4, N)**2) * input_scale 
-        
-        self.bias = rng.uniform(-1.5, 2.5, N) * bias * input_scale * 5
         self.dendrite = dendrite
+        
+        # compute parameters for individual neurons:
+        
+        # gain on excitatory inputs
+        self.e_gain = (rng.uniform(0.5, 4, N)**2) * input_scale 
+        # background current
+        self.bias = rng.uniform(-1.5, 2.5, N) * bias * input_scale * 5
+        # gain on inhibitory inputs
         if balanced:
             self.i_gain = self.e_gain
         else:    
             self.i_gain = (rng.uniform(0.5, 4, N)**2) * input_scale
+        # nonlinearity    
         self.nonlinear = rng.uniform(-0.001*nonlinear, 0.001*nonlinear, N) * input_scale
         
-    def compute_current(self, e_input, i_input):
+    def _compute_current(self, e_input, i_input):
+        """Helper function to combine inputs into a single current.
+        
+        This handles either vector inputs or matrix inputs
+        """
         if len(e_input.shape)==1:
             J = e_input*self.e_gain - i_input*self.i_gain + \
                     (e_input*i_input)*self.nonlinear
@@ -35,7 +78,7 @@ class RateNeuron:
         return J
         
     def rate(self, e_input, i_input):
-        J = self.compute_current(e_input, i_input)
+        J = self._compute_current(e_input, i_input)
         np.seterr(divide='ignore', invalid='ignore') 
         isi = self.tau_ref - self.tau_rc * np.log(
             1 - 1.0 / np.maximum(J, 0))
@@ -53,7 +96,7 @@ class SpikeNeuron(RateNeuron):
         self.refractory_time = np.zeros(N, dtype='f')
         
     def tick(self, e_input, i_input, dt):
-        J = self.compute_current(e_input, i_input)
+        J = self._compute_current(e_input, i_input)
         
         # Euler's method
         dV = dt / self.tau_rc * (J - self.voltage)
